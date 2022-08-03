@@ -23,6 +23,26 @@ Partindo do princípio de que se tem curiosidade e pretende-se tirar a prova rea
 
 Aproveitando dos conhecimentos de paralelização adquiridos ao longo da Disciplina de Programação Paralela (ELC139), foram desenvolvidos dois algoritmos em Python, um utilizando Process e outro Threads para efeitos de comparação, cujos dados de SpeedUp serão mostrados em seguida.
 
+## Código
+A geração de chaves é feita utilizando a função *Key()* da biblioteca **bit**. Utilizamos neste caso a *Key.from_int()* para que o teste de desempenho seja o mais controlado possível, assim todos os testes irão gerar os mesmos endereços e testá-los.
+
+    def test_wallet(start, end):
+        for i in range(start, end+1):
+            pk = Key.from_int(i)
+            if pk.address in wallets:
+                with open('found.txt', 'a') as result:
+                    result.write(f'ADDR:{pk.address} - PK:{pk.to_wif()}\n')
+                print(f'\n *** Added address to found.txt ***')
+
+Uma das formas de descobrir se uma carteira gerada possui saldo é verificado online em alguns sites de exploradores de blockchain, porém isso é algo que demora alguns segundos e na maioria das vezes é imposto um limite de consultas por IP. Outro método bem mais rápido que pode ser usado é baixar um arquivo de texto com as carteiras que possuem saldo diferente de zero, assim toda verificação é local e não demanda consultas online para funcionar. Esta segunda abordagem foi utilizada neste trabalho, onde baixou-se um compilado de endereços no site (http://addresses.loyce.club/), extraiu-se o arquivo de texto *Bitcoin_addresses_LATEST.txt* no mesmo diretório dos arquivos Python. 
+
+Na função *test_wallet()*, após ser gerado uma carteira, verificamos se este endereço existe dentro do arquivo de carteiras com saldo não nulo, caso exista, o endereço e a chave privada são gravados no arquivo *found.txt*, senão o próximo endereço é testado.
+
+## Paralelismo
+Como este algoritmo envolve operações mais básicas, como uma busca em uma string que contém as carteiras separadas pelos caracteres */n*, não foi difícil paralelizar suas operações. 
+No primeiro momento foi utilizada a função *Process( )* da biblioteca *multiprocessing* que chegou no objetivo de paralelizar os testes de endereços. Num segundo momento, foi testado a função *Thread( )* da biblioteca *threading*, que não funcionou como esperava-se por causa de um bloqueio que existe na linguagem Python se tratando da parte de thread. 
+
+
 ## Diferenças entre Processos e Threads
 
 Em Python, quando criamos um **Processo**, um núcleo do processador pode ser atribuído à ele, logo, se temos um processador Quadcore, podemos criar quatro processos e o desempenho será quase quatro vezes superior ao de um núcleo. Ele não será exatamente quatro vezes mais rápido, porque o sistema gerencia os processos e entre eles temos os processos do sistema operacional que também estão requisitando CPU.
@@ -32,3 +52,4 @@ Quando estamos trabalhando com **Threads**, pode-se criar várias dentro de um p
 Comprova-se isso através do gráfico de SpeedUp gerado a partir de um código que foi paralelizado usando threads e processos. É possível observar que há um ganho de desempenho quando trabalhamos com processos e o mesmo não ocorre quando estamos usando threads no Python.
 
 ![SpeedUp - Threads vs Process ](https://github.com/clebrw/Parallel-Bitcoin-Brute-Force/blob/main/SpeedUp.png?raw=true)
+
