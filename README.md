@@ -10,4 +10,4 @@ Quando estamos trabalhando com **Threads**, pode-se criar várias dentro de um p
 
 Comprova-se isso através do grafico de SpeedUp gerado a partir de um codigo que foi paralelizado usando threads e processos. É possivel observar que há um ganho de desempenho quando trabalhamos com processos e o mesmo não cocorre quando estamos usando threads no Python.
 
-![SpeedUp - Threads vs Process ](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/speedup.png?token=GHSAT0AAAAAABXIFM3WGB3ZLJ5YTTSWSVFYYXJ6PWA)
+![SpeedUp - Threads vs Process ](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/SpeedUp.png?token=GHSAT0AAAAAABXIFM3XUBKNECPI4TDWTZAQYXJ6ZFA)
