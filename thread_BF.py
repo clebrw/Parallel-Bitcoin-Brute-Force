@@ -1,4 +1,3 @@
-#from concurrent.futures import thread
 from bit import Key
 from multiprocessing import cpu_count
 from threading import Thread
@@ -6,15 +5,6 @@ import sys
 from timeit import default_timer 
 
 mean_of = 3
-
-# iteracoes, qtde de buscas
-# round pra cima ou pra baixo, crio inicio e fim, duas var de parametro, e assim evito o resto de dados 
-# comparar os dois com os mesmos dados, ate 12 threads
-# comparar thread vs process no profiler - usar mais de um profiler e até 4 threads
-# tentar explicar pq tem diferenca entre processo e thread
-
-# Cpython lock - verificar paranauês
-# profiler
 
 def test_wallet(start, end):
     #print(f'start: {start} end: {end}')
@@ -32,22 +22,21 @@ if __name__ == '__main__':
         print(f' - Parameters : amount_wallets, n_jobs_test ') 
         exit()
 
-    print(f' - Starting - Bitcoin Brute Force') 
-    print(f' - CPU count: {cpu_count()}')
+    print(f'> Starting - Bitcoin Brute Force') 
+    print(f'> CPU count: {cpu_count()}')
     
-    with open('Bitcoin_addresses_LATEST.txt', 'r') as file:
-                count = sum(1 for _ in file) # count number of bitcoin wallets 
-                wallets = file.read()
-
-    print(f' - {count:,} Wallets Loaded\n')
-    print('>>> Starting Brute Force <<<\n')
+    print(f'> Reading Wallets') 
+    # Read file.txt - have inside wallets with balances
+    wallets = open('wallets_bitcoin.txt', 'r').read()
+    lines = wallets.count('\n')
+    print(f'> {lines:,} Wallets Loaded\n')
 
     amount_wallets = int(sys.argv[1])
     n_jobs_test = int(sys.argv[2])
     
     # Benchmark of code. Using n_jobs_test as number of threads and make mean of 3 repetitions
     # need start in 1 because 0 threads not exist
-    for i in range(1,n_jobs_test+1): # i =[1,2,3,n_jobs_test]
+    for i in range(1,n_jobs_test+1): 
         init_pos = 1
         threads = []
         cpu_iteration = int(amount_wallets/i) 
@@ -57,7 +46,6 @@ if __name__ == '__main__':
 
         for _ in range(mean_of):
             for j in range(i):
-                #print(f'j={j}')
                 if j == 0:
                     t = Thread(target=test_wallet, args=( 1, cpu_iteration + rest)) 
                     init_pos += cpu_iteration + rest                                 
@@ -75,6 +63,6 @@ if __name__ == '__main__':
             init_pos = 1
 
         mean = (default_timer()-mean)/mean_of    # calculate the mean of rounds   
-        print(f'Test with {i} threads - time: {round(mean, 2)} seconds') 
+        print(f'> Test with {i} threads - time: {round(mean, 2)} seconds - {round((amount_wallets/mean),2)} wallets/s') 
 
     print('\n>>> End Brute Force <<<') 

@@ -1,7 +1,8 @@
 from bit import Key
 from multiprocessing import cpu_count, Process
 import sys
-from timeit import default_timer 
+from timeit import default_timer
+
 mean_of = 3
 
 def test_wallet(start, end):
@@ -18,15 +19,15 @@ if __name__ == '__main__':
         print(f' - Parameters : amount_wallets, n_jobs_test ') 
         exit()
 
-    print(f' - Starting - Bitcoin Brute Force') 
-    print(f' - CPU count: {cpu_count()}')
+    print(f'> Starting - Bitcoin Brute Force') 
+    print(f'> CPU count: {cpu_count()}')
     
+    print(f'> Reading Wallets') 
     # Read file.txt - have inside wallets with balances
-    with open('Bitcoin_addresses_LATEST.txt', 'r') as file:
-                count = sum(1 for _ in file) # count number of bitcoin wallets # comentar e analisar
-                wallets = file.read()
+    wallets = open('wallets_bitcoin.txt', 'r').read()
+    lines = wallets.count('\n')
+    print(f'> {lines:,} Wallets Loaded\n')
 
-    print(f' - {count:,} Wallets Loaded\n')
     print('>>> Starting Brute Force <<<\n')
  
     amount_wallets = int(sys.argv[1])
@@ -62,22 +63,6 @@ if __name__ == '__main__':
             init_pos = 1
 
         mean = (default_timer()-mean)/mean_of    # calculate the mean of rounds   
-        print(f'Test with {i} processes - time: {round(mean, 2)} seconds') 
+        print(f'> Test with {i} processes - {round(mean, 2)} seconds - {round((amount_wallets/mean),2)} wallets/s') 
 
     print('\n>>> End Brute Force <<<')           
-
-    # python -m cProfile -o output.stats process_BF.py
-    # python -m pstats output.stats
-    # sort ncalls
-    # stats 20
-
-    # snakeviz output.stats
-    
-    # gprof2dot -f pstats output.stats | dot -Tpng -o out.png  
-    
-    # py-spy top -- python3 process_BF.py 100000 4
-    # pyinstrument process_BF.py 100000 1
-
-    # Fazer um repositorio
-    # criar um bom readme, pode substituir slides
-
