@@ -10,7 +10,7 @@ Aproveitando dos conhecimentos de paralelização adquiridos ao longo da Discipl
 
 A geração de carteiras de Bitcoin é feita através de criptografia assimétrica, onde a partir de uma chave privada, gera-se uma chave pública e a partir dela, o endereço da carteira que é usado para receber moedas. Devido ao algoritmo de Curvas Elípticas e Hashs utilizados na criptografia de geração de chaves, só pode-se fazer um caminho de mão única como é visto na imagem abaixo, ou seja, partindo da geração da chave privada até chegar no endereço da carteira.
 
-![Geração de chaves de Bitcoin - Fonte: Oreilly](https://github.com/elc139/final-2022a-clebrw/blob/master/img/private-public-address-oreilly.png?raw=true)
+![Geração de chaves de Bitcoin - Fonte: Oreilly](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/private-public-address-oreilly.png)
 
 Em termos de segurança, temos 256 bits de possibilidades para geração de carteiras, isso representa um número de 78 dígitos, ou seja, só não é maior que a quantidade de átomos do universo observável.
 
@@ -23,7 +23,7 @@ Em termos de segurança, temos 256 bits de possibilidades para geração de cart
 | Endereços Bitcoin   | 1,15*10<sup>77</sup> endereços |
 | Universo Observável | 10<sup>82</sup> átomos |
  
-Com base nesses dados, é possível notar que é bastante improvável gerar duas vezes o mesmo endereço de Bitcoin se usados métodos seguros de randomização na geração das chaves. Assim sendo, é praticamente impossível conseguir a chave privada de algum endereço com saldo diferente de zero utilizando força bruta, pois levaria muitos anos de computação para encontrar algum.
+Com base nesses dados, é possível notar que é bastante improvável gerar duas vezes o mesmo endereço de Bitcoin se usados métodos seguros de randomização na geração das chaves. Assim sendo, **é praticamente impossível conseguir a chave privada de algum endereço com saldo diferente de zero utilizando força bruta**, pois levaria milhares de anos para encontrar algum com o hardware disponível que temos hoje.
 
 ## Desenvolvimento
 A geração de chaves é feita utilizando a função *Key()* da biblioteca **bit** que gera endereços do tipo *Pagar para Hash de chave pública* **(P2PKH)**. Utilizamos neste caso a *Key.from_int()* para que o teste de desempenho seja o mais controlado possível, assim todos os testes irão gerar os mesmos endereços e testá-los.
@@ -48,48 +48,48 @@ No primeiro momento foi utilizada a função *Process( )* da biblioteca *multipr
 
 ### Diferenças entre Processos e Threads
 
-![process vs threads_javatpoint](https://github.com/elc139/final-2022a-clebrw/blob/master/img/process-vs-thread_javatpoint.png?raw=true)
+![process vs threads_javatpoint](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/process-vs-thread_javatpoint.png)
 
 Em Python, quando criamos um **Processo**, um núcleo do processador pode ser atribuído à ele, logo, se temos um processador Quadcore, podemos criar quatro processos e o desempenho será quase quatro vezes superior ao de um núcleo. Ele não será exatamente quatro vezes mais rápido, porque o sistema gerencia os processos e entre eles temos os processos do sistema operacional que também estão requisitando CPU.
 
 Quando estamos trabalhando com **Threads**, pode-se criar várias dentro de um processo, porém eles sofrem um bloqueio, onde apenas uma thread é executada por vez. Este bloqueio é gerenciado pelo Global Interpreter Lock (**GIL**) que funciona como um *mutex*, fazendo com que apenas uma thread execute enquanto as outras ficam bloqueadas tornando o código *thread-safe*. Este gerenciamento se faz necessário por causa do *reference counting*, que é uma referência de quantas vezes um objeto é usado em Python, caso seja nulo, o *Garbage Collector* irá liberar esse espaço em memória, excluindo esse objeto. Se caso várias threads estiverem executando, ele poderá ser incrementado simultaneamente e assim gerar um problema de *race conditions*, incrementando de forma errônea a quantidade de vezes, podendo causar uma exclusão pelo Garbage Collector antes de realmente se fazer necessário e consequentemente causando *bugs* no código.  
 
-![GIL_threads_packtpub](https://github.com/elc139/final-2022a-clebrw/blob/master/img/GIL_threads.png?raw=true)
+![GIL_threads_packtpub](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/GIL_threads.png)
 
 Comprova-se isso através do gráfico de SpeedUp gerado a partir de um código que foi paralelizado usando threads e processos. É possível observar que há um ganho de desempenho quando trabalhamos com processos e o mesmo não ocorre quando estamos usando threads no Python.
 
 Para gerar o gráfico de SpeedUp, foram testados 1 mil endereços, gerenciados de acordo com a quantidade de processos ou threads que eram criados e além disso, cada teste era repetido três vezes para então fazer uma média dos valores e ter um resultado mais confiável de tempo de execução.
 
-![SpeedUp - Threads vs Process ](https://github.com/elc139/final-2022a-clebrw/blob/master/img/SpeedUp.png?raw=true)
+![SpeedUp - Threads vs Process ](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/SpeedUp.png)
 
 Com  o objetivo de obter uma comparação de desempenho entre processadores, foi utilizado o algoritmo feito com processos  **process_FB.py**. Foram testados um Intel Core i7 de terceira geração, um i5 de segunda, um processador genérico que o Google Colab deixa à disposição de quem usa a plataforma e por último um Raspberry pi 4 que possui um ARM Cortex-A72.
 
-![comparacao_entre_cpus](https://github.com/elc139/final-2022a-clebrw/blob/master/img/cpus_comparison.png?raw=true)
+![comparacao_entre_cpus](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/cpus_comparison.png)
 
 Também foi gerado um gráfico de eficiência de paralelização para o processador Intel Core i7 Quad Core, onde obteve-se **2,72 de SpeedUp** e **68% de eficiência** desta paralelização em comparação com a versão serial do algoritmo, **serial_BF_BTC.py**. Na versão paralela, com processos, temos um tempo maior para configurar o ambiente, porém na parte da execução não nota-se significativa diferença de desempenho.
 
-![Eficiência](https://github.com/elc139/final-2022a-clebrw/blob/master/img/eficiencia.png?raw=true)
+![Eficiência](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/eficiencia.png)
 
 ### Profilers
-Para entender melhor o fluxo de dados, optou-se por fazer uma análise do código usando o profiler **cProfile**. 
-No entanto, este profiler não consegue obter informações de processos que foram criados, é como se ele não conseguisse rastrear o que acontece depois que eles são iniciados e somente detecta quando os processos retornam sua execução pela chamada *join( )*.
+Para entender melhor o fluxo de dados, optou-se por fazer uma análise do código usando o profiler **cProfile**, no entanto, este profiler não consegue obter informações de processos que foram criados. É como se ele não conseguisse rastrear o que acontece depois que eles são iniciados e somente detecta quando os processos retornam sua execução pela chamada *join( )*.
 
-![cProfile](https://github.com/elc139/final-2022a-clebrw/blob/master/img/cProfile.png?raw=true)
+![cProfile](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/cProfile.png)
 
 Outra forma de analisar o fluxo de dados é através do gprof2dot que gera um gráfico onde as cores quentes indicam maior execução.
 
-![gprof2dot](https://github.com/elc139/final-2022a-clebrw/blob/master/img/gprof2dot_output_cProfile.png?raw=true)
+![gprof2dot](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/gprof2dot_output_cProfile.png)
 
 Também foi usado o software *pyinstrument* para recolher informações sobre os processos que foram criados e infelizmente não foi possível obter informações além das que o cProfile gerou.  
 
-![pyinstrument](https://github.com/elc139/final-2022a-clebrw/blob/master/img/pyinstrument.png?raw=true)
+![pyinstrument](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/pyinstrument.png)
 
-Uma provável maneira de analisar os processos criados seria rodar algum software que analise todos os processos que estão executando no Sistema Operacional, provavelmente teríamos muito ruído de outros serviços, mas seria possível obter mais informações sobre essa execução. Também é possível fazer um código não paralelo, em que não são criados processos, assim é possível analisar melhor as funções que são chamadas e se o tempo é gasto na busca que é realizada ou na geração de chaves assimétricas. Nesta análise feita do código serial com o cProfile é possível ver mais detalhes da execução do mesmo.
+Uma provável maneira de analisar os processos criados seria rodar algum software que analise todos os processos que estão executando no Sistema Operacional, provavelmente teríamos muito ruído de outros serviços, mas seria possível obter mais informações sobre essa execução. Também é possível fazer um código não paralelo, em que não são criados processos, assim é possível analisar melhor as funções que são chamadas e se o tempo é gasto na busca que é realizada ou na geração de chaves assimétricas.
+Nesta análise feita do código serial com o cProfile é possível ver mais detalhes da execução do mesmo.
 
-![cProfile_serial](https://github.com/elc139/final-2022a-clebrw/blob/master/img/cProfile_serial.png?raw=true)
+![cProfile_serial](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/cProfile_serial.png)
 
 ## Conclusão 
-Conclui-se que este algoritmo, que faz a geração de chaves assimétricas e consequentemente uma busca em uma string, é paralelizável e em um  processador Quadcore pode ter um **ganho** de mais de **3 vezes** em relação à versão não paralela, como pode ser observado no gráfico de SpeedUp. Em relação à análise do algoritmo, que envolve a parte de Profilers, não foi possível fazer uma busca mais profunda sobre o que está acontecendo no código paralelo, assim impossibilitando que alguns melhoramentos poderiam ser feitos.
+Conclui-se que este algoritmo, que faz a geração de chaves assimétricas e consequentemente uma busca em uma string, é paralelizável e em um  processador Quadcore pode ter um **ganho** de mais de **3 vezes** em relação à versão não paralela, como pode ser observado no gráfico de SpeedUp. Em relação à análise do algoritmo, que envolve a parte de Profilers, não foi possível fazer uma busca mais profunda sobre o que está acontecendo no código paralelo, assim dificultando que alguns melhoramentos poderiam ser feitos.
 
 ## Comandos Utilizados
 **Códigos**
