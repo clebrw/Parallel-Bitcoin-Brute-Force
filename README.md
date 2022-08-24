@@ -1,32 +1,32 @@
-# Força Bruta em Carteiras de Bitcoin.
+# Brute Force in Bitcoin Wallets
 
-## Resumo
+## Abstract
 
-Partindo do princípio de que se tem curiosidade e pretende-se tirar a prova real de quão difícil é achar um endereço com saldo diferente de zero, foi desenvolvido um algoritmo que gera um novo endereço de bitcoin e testa se o mesmo encontra-se em uma lista de endereços de bitcoin com saldo diferente de zero. Em caso afirmativo, o que é raro de acontecer, o endereço e sua chave privada serão salvos em um arquivo de texto.
+Assuming that you are curious and intend to take the real proof of how difficult it is to find an address with a non-zero balance, an algorithm was developed that generates a new bitcoin address and tests if it is in a list of bitcoin addresses with non-zero balance. If so, which is rare, the address and your private key will be saved in a text file.
 
-Aproveitando dos conhecimentos de paralelização adquiridos ao longo da Disciplina de Programação Paralela (ELC139), foram desenvolvidos dois algoritmos em Python, um utilizando Processos e outro Threads para efeitos de comparação, cujos dados de SpeedUp e Profilers serão mostrados logo mais.
+Taking advantage of the parallelization knowledge acquired during the Parallel Programming Course (ELC139), two algorithms were developed in Python, one using Processes and the other Threads for comparison purposes, whose SpeedUp and Profilers data will be shown later.
 
-## Introdução
+## Introduction
 
-A geração de carteiras de Bitcoin é feita através de criptografia assimétrica, onde a partir de uma chave privada, gera-se uma chave pública e a partir dela, o endereço da carteira que é usado para receber moedas. Devido ao algoritmo de Curvas Elípticas e Hashs utilizados na criptografia de geração de chaves, só pode-se fazer um caminho de mão única como é visto na imagem abaixo, ou seja, partindo da geração da chave privada até chegar no endereço da carteira.
+The generation of Bitcoin wallets is done through asymmetric cryptography, where from a private key, a public key is generated and from it, the address of the wallet that is used to receive coins. Due to the Elliptic Curves and Hash algorithm used in key generation encryption, it is only possible to make a one-way path as seen in the image below, that is, from the generation of the private key to the wallet address.
 
 ![Geração de chaves de Bitcoin - Fonte: Oreilly](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/private-public-address-oreilly.png)
 
-Em termos de segurança, temos 256 bits de possibilidades para geração de carteiras, isso representa um número de 78 dígitos, ou seja, só não é maior que a quantidade de átomos do universo observável.
+In terms of security, we have 256 bits of possibilities for generating wallets, this represents a number of 78 digits, that is, it is just not greater than the number of atoms in the observable universe.
 
-|Objeto |Qtde |
+|Object |Numbers |
 |---------------------|---------------------------|
-| Galáxias            | 10<sup>11</sup> à 10<sup>12</sup> galáxias |
-| Estrelas            | 10<sup>22</sup> à 10<sup>24</sup> estrelas |
-| Uma pessoa          | 7*10<sup>27</sup> átomos |
-| População Mundial   | 5*10<sup>37</sup> átomos |
-| Endereços Bitcoin   | 1,15*10<sup>77</sup> endereços |
-| Universo Observável | 10<sup>82</sup> átomos |
+| Galaxies            | 10<sup>11</sup> à 10<sup>12</sup> galaxies |
+| Starts            | 10<sup>22</sup> à 10<sup>24</sup> stars |
+| A person          | 7*10<sup>27</sup> atoms |
+| World population   | 5*10<sup>37</sup> atoms |
+| Bitcoin Addresses  | 1,15*10<sup>77</sup> addresses |
+| Observable Universe | 10<sup>82</sup> atoms |
  
-Com base nesses dados, é possível notar que é bastante improvável gerar duas vezes o mesmo endereço de Bitcoin se usados métodos seguros de randomização na geração das chaves. Assim sendo, **é praticamente impossível conseguir a chave privada de algum endereço com saldo diferente de zero utilizando força bruta**, pois levaria milhares de anos para encontrar algum com o hardware disponível que temos hoje.
+Based on this data, it is possible to note that it is quite unlikely to generate the same Bitcoin address twice if using secure randomization methods in generating the keys. Therefore, **it is practically impossible to get the private key of some address with a non-zero balance using brute force**, as it would take thousands of years to find one with the available hardware that we have today.
 
-## Desenvolvimento
-A geração de chaves é feita utilizando a função *Key()* da biblioteca **bit** que gera endereços do tipo *Pagar para Hash de chave pública* **(P2PKH)**. Utilizamos neste caso a *Key.from_int()* para que o teste de desempenho seja o mais controlado possível, assim todos os testes irão gerar os mesmos endereços e testá-los.
+## Development
+The generation of keys is done using the *Key()* function of the **bit** library that generates addresses of type *Pay for Public Key Hash* **(P2PKH)**. In this case, we use *Key.from_int()* so that the performance test is as controlled as possible, so all tests will generate the same addresses and test them.
 
     def test_wallet(start, end):
         for i in range(start, end+1):
@@ -36,63 +36,63 @@ A geração de chaves é feita utilizando a função *Key()* da biblioteca **bit
                     result.write(f'ADDR:{pk.address} - PK:{pk.to_wif()}\n')
                 print(f'\n *** Added address to found.txt ***')
 
-Uma das formas de descobrir se uma carteira gerada possui saldo é verificando online em alguns sites de exploradores de blockchain, porém isso é algo que demora alguns segundos e na maioria das vezes é imposto um limite de consultas por IP. Outro método bem mais rápido que pode ser usado é baixar um arquivo de texto com as carteiras que possuem saldo diferente de zero, assim toda verificação é local e não demanda consultas online para funcionar. Esta segunda abordagem foi utilizada neste trabalho, onde baixou-se um compilado de endereços dos mais variados tipos, mais de 42 milhões, do site (http://addresses.loyce.club/), e extraiu-se o arquivo de texto *Bitcoin_addresses_LATEST.txt* no mesmo diretório dos arquivos Python. Como a função *Key()* trabalha com o tipo P2PKH, vamos filtrar apenas esses tipos de endereços para aumentar a eficiência de busca. Com a versão da data que foi escrito esse relatório(07/2022), tem-se 1.6GB de endereços e depois de aplicar o filtro, gerou-se um arquivo de aproximadamente 800MB. 
+One of the ways to find out if a generated wallet has a balance is to check it online on some blockchain explorer websites, but this takes a few seconds and most of the time a limit on IP queries is imposed. Another much faster method that can be used is to download a text file with the wallets that have a non-zero balance, so that all verification is local and does not require online consultations to work. This second approach was used in this work, where more than 42 million addresses of the most varied types were downloaded from the website (http://addresses.loyce.club/), and the text file was extracted * Bitcoin_addresses_LATEST.txt* in the same directory as the Python files. As the *Key()* function works with the P2PKH type, we will filter only these types of addresses to increase the search efficiency. With the version of the date that this report was written (07/2022), there are 1.6GB of addresses and after applying the filter, a file of approximately 800MB was generated.
 
-Na função *test_wallet()*, após ser gerado uma carteira, verificamos se o  endereço gerado existe dentro do arquivo de carteiras com saldo não nulo, caso exista, o endereço e a chave privada são gravados no arquivo *found.txt*, senão o próximo endereço é testado.
+In the *test_wallet()* function, after generating a wallet, we check if the generated address exists within the wallet file with a non-null balance, if it exists, the address and the private key are recorded in the *found.txt* file, otherwise the next address is tested.
 
-No repositório é possível encontrar **serial_BF_BTC.py** que é a versão não paralela do programa e **parallel_BF_BTC.py** que é a versão paralela usando Process, ambos geram chaves aleatórios e não são tão controlados como as versões **process_BF.py** e **thread_BF.py** que foram usados para fazer os testes de SpeedUp. Além disso, temos **select_P2PKH_text.py** que gera um arquivo de texto somente com endereços P2PKH, **wallets_bitcoin.txt** a partir do arquivo que possui os endereços de carteiras com saldos atualizados.  
+In the repository you can find **serial_BF_BTC.py** which is the non-parallel version of the program and **parallel_BF_BTC.py** which is the parallel version using Process, both generate random keys and are not as controlled as the versions ** process_BF.py** and **thread_BF.py** that were used to do the SpeedUp tests. In addition, we have **select_P2PKH_text.py** that generates a text file with only P2PKH addresses, **wallets_bitcoin.txt** from the file that has the addresses of wallets with updated balances.
 
-### Paralelismo
-Como este algoritmo envolve operações mais básicas, como uma busca em uma string que contém as carteiras separadas pelos caracteres *\n*, não foi difícil paralelizar suas operações. 
-No primeiro momento foi utilizada a função *Process( )* da biblioteca *multiprocessing* que chegou no objetivo de paralelizar os testes de endereços. Num segundo momento, foi testado a função *Thread( )* da biblioteca *threading*, que não funcionou como esperava-se por causa de um bloqueio que existe na linguagem Python se tratando da parte de thread. 
+### Parallelism
+As this algorithm involves more basic operations, such as a search on a string that contains the wallets separated by the characters *\n*, it was not difficult to parallelize its operations.
+At first, the *Process()* function from the *multiprocessing* library was used, which had the objective of parallelizing the address tests. In a second moment, the *Thread( )* function of the *threading* library was tested, which did not work as expected because of a block that exists in the Python language when it comes to the thread part.
 
-### Diferenças entre Processos e Threads
+### Differences between Processes and Threads
 
 ![process vs threads_javatpoint](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/process-vs-thread_javatpoint.png)
 
-Em Python, quando criamos um **Processo**, um núcleo do processador pode ser atribuído à ele, logo, se temos um processador Quadcore, podemos criar quatro processos e o desempenho será quase quatro vezes superior ao de um núcleo. Ele não será exatamente quatro vezes mais rápido, porque o sistema gerencia os processos e entre eles temos os processos do sistema operacional que também estão requisitando CPU.
+In Python, when we create a **Process**, a processor core can be assigned to it, so if we have a Quadcore processor, we can create four processes and the performance will be almost four times that of a core. It won't be exactly four times faster, because the system manages the processes and between them we have the operating system processes that are also demanding CPU.
 
-Quando estamos trabalhando com **Threads**, pode-se criar várias dentro de um processo, porém eles sofrem um bloqueio, onde apenas uma thread é executada por vez. Este bloqueio é gerenciado pelo Global Interpreter Lock (**GIL**) que funciona como um *mutex*, fazendo com que apenas uma thread execute enquanto as outras ficam bloqueadas tornando o código *thread-safe*. Este gerenciamento se faz necessário por causa do *reference counting*, que é uma referência de quantas vezes um objeto é usado em Python, caso seja nulo, o *Garbage Collector* irá liberar esse espaço em memória, excluindo esse objeto. Se caso várias threads estiverem executando, ele poderá ser incrementado simultaneamente e assim gerar um problema de *race conditions*, incrementando de forma errônea a quantidade de vezes, podendo causar uma exclusão pelo Garbage Collector antes de realmente se fazer necessário e consequentemente causando *bugs* no código.  
+When we are working with **Threads**, we can create several within a process, but they suffer a block, where only one thread is executed at a time. This lock is managed by the Global Interpreter Lock (**GIL**) that works like a *mutex*, causing only one thread to execute while the others are blocked, making the code *thread-safe*. This management is necessary because of the *reference counting*, which is a reference of how many times an object is used in Python, if it is null, the *Garbage Collector* will free this space in memory, excluding this object. If several threads are running, it can be incremented simultaneously and thus generate a *race conditions* problem, erroneously incrementing the number of times, which can cause a deletion by the Garbage Collector before it is really necessary and consequently causing *bugs * in the code.  
 
 ![GIL_threads_packtpub](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/GIL_threads.png)
 
-Comprova-se isso através do gráfico de SpeedUp gerado a partir de um código que foi paralelizado usando threads e processos. É possível observar que há um ganho de desempenho quando trabalhamos com processos e o mesmo não ocorre quando estamos usando threads no Python.
+This is proved through the SpeedUp graph generated from a code that was parallelized using threads and processes. It is possible to observe that there is a performance gain when working with processes and the same does not occur when we are using threads in Python.
 
-Para gerar o gráfico de SpeedUp, foram testados 1 mil endereços, gerenciados de acordo com a quantidade de processos ou threads que eram criados e além disso, cada teste era repetido três vezes para então fazer uma média dos valores e ter um resultado mais confiável de tempo de execução.
+To generate the SpeedUp graph, 1,000 addresses were tested in quad core processor, managed according to the number of processes or threads that were created and, in addition, each test was repeated three times to then average the values and have a more reliable result of runtime.
 
 ![SpeedUp - Threads vs Process ](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/SpeedUp.png)
 
-Com  o objetivo de obter uma comparação de desempenho entre processadores, foi utilizado o algoritmo feito com processos  **process_FB.py**. Foram testados um Intel Core i7 de terceira geração, um i5 de segunda, um processador genérico que o Google Colab deixa à disposição de quem usa a plataforma e por último um Raspberry pi 4 que possui um ARM Cortex-A72.
+In order to obtain a performance comparison between processors, the algorithm made with **process_FB.py** processes was used. We tested a third-generation Intel Core i7, a second-generation Intel Core i5, a generic processor that Google Colab makes available to those who use the platform and, finally, a Raspberry pi 4 that has an ARM Cortex-A72.
 
 ![comparacao_entre_cpus](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/cpus_comparison.png)
 
-Também foi gerado um gráfico de eficiência de paralelização para o processador Intel Core i7 Quad Core, onde obteve-se **2,72 de SpeedUp** e **68% de eficiência** desta paralelização em comparação com a versão serial do algoritmo, **serial_BF_BTC.py**. Na versão paralela, com processos, temos um tempo maior para configurar o ambiente, porém na parte da execução não nota-se significativa diferença de desempenho.
+A parallelization efficiency graph was also generated for the Intel Core i7 Quad Core processor, where **2.72 SpeedUp** and **68% efficiency** were obtained from this parallelization compared to the serial version of the algorithm. , **serial_BF_BTC.py**. In the parallel version, with processes, we have a longer time to configure the environment, but in the execution part there is no significant difference in performance.
 
 ![Eficiência](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/eficiencia.png)
 
 ### Profilers
-Para entender melhor o fluxo de dados, optou-se por fazer uma análise do código usando o profiler **cProfile**, no entanto, este profiler não consegue obter informações de processos que foram criados. É como se ele não conseguisse rastrear o que acontece depois que eles são iniciados e somente detecta quando os processos retornam sua execução pela chamada *join( )*.
+To better understand the data flow, it was decided to analyze the code using the **cProfile** profiler, however, this profiler cannot obtain information from processes that were created. It's as if it can't track what happens after they're started and only detects when processes resume execution by calling *join( )*.
 
 ![cProfile](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/cProfile.png)
 
-Outra forma de analisar o fluxo de dados é através do gprof2dot que gera um gráfico onde as cores quentes indicam maior execução.
+Another way to analyze the data flow is through gprof2dot which generates a graph where warm colors indicate greater execution.
 
 ![gprof2dot](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/gprof2dot_output_cProfile.png)
 
-Também foi usado o software *pyinstrument* para recolher informações sobre os processos que foram criados e infelizmente não foi possível obter informações além das que o cProfile gerou.  
+The *pyinstrument* software was also used to collect information about the processes that were created and unfortunately it was not possible to obtain information beyond what the cProfile generated. 
 
 ![pyinstrument](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/pyinstrument.png)
 
-Uma provável maneira de analisar os processos criados seria rodar algum software que analise todos os processos que estão executando no Sistema Operacional, provavelmente teríamos muito ruído de outros serviços, mas seria possível obter mais informações sobre essa execução. Também é possível fazer um código não paralelo, em que não são criados processos, assim é possível analisar melhor as funções que são chamadas e se o tempo é gasto na busca que é realizada ou na geração de chaves assimétricas.
-Nesta análise feita do código serial com o cProfile é possível ver mais detalhes da execução do mesmo.
+A probable way to analyze the processes created would be to run some software that analyzes all the processes that are running in the Operating System, we would probably have a lot of noise from other services, but it would be possible to get more information about this execution. It is also possible to make non-parallel code, in which processes are not created, so it is possible to better analyze the functions that are called and if the time is spent in the search that is performed or in the generation of asymmetric keys.
+In this analysis made of the serial code with cProfile it is possible to see more details of its execution.
 
 ![cProfile_serial](https://raw.githubusercontent.com/clebrw/Parallel-Bitcoin-Brute-Force/main/img/cProfile_serial.png)
 
-## Conclusão 
-Conclui-se que este algoritmo, que faz a geração de chaves assimétricas e consequentemente uma busca em uma string, é paralelizável e em um  processador Quadcore pode ter um **ganho** de mais de **3 vezes** em relação à versão não paralela, como pode ser observado no gráfico de SpeedUp. Em relação à análise do algoritmo, que envolve a parte de Profilers, não foi possível fazer uma busca mais profunda sobre o que está acontecendo no código paralelo, assim dificultando que alguns melhoramentos poderiam ser feitos.
+## Conclusion 
+It is concluded that this algorithm, which generates asymmetric keys and consequently a search in a string, is parallelizable and in a Quadcore processor it can have a **gain** of more than **3 times** in relation to the previous non-parallel version, as can be seen in the SpeedUp graph. Regarding the analysis of the algorithm, which involves the Profilers part, it was not possible to do a deeper search on what is happening in the parallel code, thus making it difficult for some improvements to be made.
 
-## Comandos Utilizados
-**Códigos**
+## Commands Used
+**Codes**
 
     python3 serial_BF_BTC.py 1000
     python3 parallel_BF_BTC.py 1000 8
@@ -112,8 +112,12 @@ Conclui-se que este algoritmo, que faz a geração de chaves assimétricas e con
 
     pyinstrument process_BF.py 1000 8
 
-## Referências
+## References
 
-[Global Interpreter Lock](https://wiki.python.org/moin/GlobalInterpreterLock). Acessado em 5/08/2022
+[Mastering Bitcoin, 2nd Edition by Andreas M. Antonopoulos](https://www.oreilly.com/library/view/mastering-bitcoin-2nd/9781491954379/ch04.html). Acessed in 08/2022
 
-[Mastering Bitcoin, 2nd Edition by Andreas M. Antonopoulos](https://www.oreilly.com/library/view/mastering-bitcoin-2nd/9781491954379/ch04.html). Acessado em 5/08/2022
+[Process Vs. Thread | Difference Between Process and Thread](https://www.javatpoint.com/process-vs-thread). Acessed in 08/2022
+
+[Python Global Interpreter Lock Tutorial](https://www.datacamp.com/tutorial/python-global-interpreter-lock). Acessed in 08/2022
+
+[Global Interpreter Lock](https://wiki.python.org/moin/GlobalInterpreterLock). Acessed in 08/2022
