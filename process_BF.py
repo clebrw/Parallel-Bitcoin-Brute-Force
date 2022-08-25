@@ -4,6 +4,7 @@ import sys
 from timeit import default_timer
 
 mean_of = 3
+wallets = []
 
 def test_wallet(start, end):
     for i in range(start, end+1):
