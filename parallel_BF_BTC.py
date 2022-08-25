@@ -2,6 +2,7 @@ from bit import Key
 from timeit import default_timer 
 from multiprocessing import cpu_count, Process
 import sys
+wallets = []
 
 def BF_random(iterations):
     for _ in range(iterations):
